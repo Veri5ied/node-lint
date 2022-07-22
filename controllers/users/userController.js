@@ -18,7 +18,7 @@ const signUp = async (req, res) => {
     const user = await User.create(data);
     if (user) {
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-        expiresIn: 1 * 24 * 60 * 60 * 1000,
+        expiresIn: "72h",
       });
 
       user.token = token;
@@ -26,6 +26,7 @@ const signUp = async (req, res) => {
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 7,
       });
+      sendMail(req.body.email);
       return res.status(200).send({
         message: "User created successfully, please check your email for OTP",
       });
@@ -53,7 +54,7 @@ const login = async (req, res) => {
 
       if (isSame) {
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-          expiresIn: 1 * 24 * 60 * 60 * 1000,
+          expiresIn: "72h",
         });
 
         user.token = token;
@@ -61,8 +62,6 @@ const login = async (req, res) => {
           httpOnly: true,
           maxAge: 1000 * 60 * 60 * 24 * 7,
         });
-        console.log("user", JSON.stringify(user, null, 2));
-        console.log(token);
         return res.status(200).json({ user, token });
       } else {
         return res.status(409).send("Authentication failed");
@@ -76,7 +75,79 @@ const login = async (req, res) => {
   }
 };
 
+const verifiyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const user = await User.findOne({
+      where: {
+        email,
+      },
+    });
+    if (user) {
+      const userOTPVerification = await User.findOne({
+        where: {
+          email,
+          otp,
+        },
+      });
+      if (userOTPVerification) {
+        const data = {
+          isVerified: true,
+        };
+        const userOTPVerification = await User.update(data, {
+          where: {
+            email,
+            otp,
+          },
+        });
+        if (userOTPVerification) {
+          return res.status(200).send({
+            message: "OTP verified successfully",
+          });
+        } else {
+          return res.status(409).send("Something went wrong");
+        }
+      } else {
+        return res.status(409).send("Something went wrong");
+      }
+    } else {
+      return res.status(409).send("Something went wrong");
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send("Something went wrong");
+  }
+};
+
+const sendMail = (email) => {
+  console.log("Mail sent to " + email);
+
+  const nodemailer = require("nodemailer");
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "",
+      pass: "",
+    },
+  });
+  const mailOptions = {
+    from: "",
+    to: email,
+    subject: "OTP",
+    text: "OTP is " + otp,
+  };
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log("Email sent: " + info.response);
+    }
+  });
+};
+
 module.exports = {
   signUp,
   login,
+  verifiyOTP,
 };
