@@ -1,7 +1,7 @@
 const { Sequelize, DataTypes } = require("sequelize");
 
 const sequelize = new Sequelize(
-  `postgres://xfqeuwougejjye:e457a9f28bc1117d8d58b62b2706784f7bf33ca8023a87b063c4e9a5875f3cc6@ec2-44-206-214-233.compute-1.amazonaws.com:5432/dfdgi89d9ga5jn`,
+  `postgres://${process.env.DB_USER}:${process.env.DB_PASS}@localhost:${process.env.DB_PORT}/${process.env.DB_NAME}`,
   {
     dialect: "postgres",
   }
