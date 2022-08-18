@@ -1,6 +1,6 @@
 //import models your app uses
 
-import { asyncWrapper } from "../middlewares/async";
+import { asyncWrapper } from "../middlewares/async.js";
 //import { createCustomAPIError } from "../errors/custom-error";
 
 const getAllTasks = asyncWrapper(async (req, res) => {

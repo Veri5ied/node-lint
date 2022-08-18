@@ -1,4 +1,4 @@
-import { CustomAPIError } from "../errors/custom-error";
+import { CustomAPIError } from "../errors/custom-error.js";
 
 const errorHandler = (err, req, res, next) => {
   if (err instanceof CustomAPIError) {

@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import errorHandler from "./middlewares/error-handler";
+import errorHandler from "./middlewares/error-handler.js";
 import sampleRoute from "./routes/sample-route.js";
 const app = express();
 dotenv.config();
@@ -15,7 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
-app.use("/api/v1/sample", sampleroute);
+app.use("/api/v1/sample", sampleRoute);
 app.use(errorHandler);
 
 const port = process.env.PORT || 4000;
